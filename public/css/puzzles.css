@@ -1,0 +1,347 @@
+/* The other two cabinets: the game picker, the crossword, and the sudoku.
+   Everything here leans on theme.css for colour and on layout.css for the HUD,
+   the pop-out card and the end-of-level banner, which all three games share. */
+
+/* ---- shared: pick screens -------------------------------------------- */
+
+.chip {
+  min-height: 0;
+  padding: 1.4vmin 2.4vmin;
+  font-size: clamp(10px, 1.9vmin, 15px);
+}
+
+#screen-gamepick,
+#screen-crosswordselect,
+#screen-sudokuselect { justify-content: center; gap: 3vmin; }
+
+/* ---- the game picker ------------------------------------------------- */
+
+.game-row {
+  display: flex;
+  gap: clamp(12px, 3vmin, 32px);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.game-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2vmin;
+  width: clamp(150px, 26vmin, 260px);
+  aspect-ratio: 0.92;
+  padding: 2.4vmin;
+  background: var(--bg-panel);
+}
+
+.game-tile:hover { border-color: var(--cyan); }
+
+.game-label { font-size: clamp(9px, 1.8vmin, 15px); }
+
+.game-art {
+  display: grid;
+  width: 62%;
+  aspect-ratio: 1;
+  gap: 4%;
+  position: relative;
+}
+
+.math-art { grid-template-columns: repeat(3, 1fr); }
+.math-art i {
+  background: var(--bg-cell);
+  border: 2px solid var(--dim);
+  border-radius: 3px;
+}
+/* The plus sits over the little grid, the way the game's whole idea does. */
+.math-art-sign {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: clamp(26px, 7vmin, 58px);
+  z-index: 1;
+}
+
+.cross-art { grid-template-columns: repeat(3, 1fr); }
+.cross-art i {
+  display: grid;
+  place-items: center;
+  background: var(--bg-cell);
+  border: 2px solid var(--dim);
+  border-radius: 2px;
+  font-size: clamp(9px, 2.2vmin, 18px);
+  font-style: normal;
+  color: var(--magenta);
+}
+.cross-art i.block { background: #05050c; border-color: #05050c; }
+
+.sudoku-art { grid-template-columns: repeat(2, 1fr); }
+.sudoku-art i {
+  display: grid;
+  place-items: center;
+  background: var(--bg-cell);
+  border: 2px solid var(--dim);
+  border-radius: 3px;
+  font-size: clamp(16px, 4.5vmin, 36px);
+  font-style: normal;
+}
+
+/* ---- shared: puzzle pickers ------------------------------------------ */
+
+.puzzle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(96px, 17vmin, 150px), 1fr));
+  gap: clamp(8px, 2vmin, 20px);
+  width: min(92vw, 1000px);
+}
+
+.puzzle-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1vmin;
+  aspect-ratio: 0.86;
+  padding: 1.6vmin;
+  background: var(--bg-panel);
+  color: var(--cyan);
+}
+
+.puzzle-tile.locked   { color: var(--dim); border-color: #262646; }
+.puzzle-tile.done     { border-color: var(--green); }
+.puzzle-tile.perfect  { border-color: var(--gold); box-shadow: 0 0 14px rgba(255, 207, 64, 0.4); }
+.puzzle-tile.progress { border-color: var(--cyan); }
+
+/* The puzzle's own shape, in miniature: it is the only honest picture of it. */
+.shape-art { display: grid; gap: 1px; width: 62%; aspect-ratio: 1; }
+.shape-art i { background: currentColor; border-radius: 1px; opacity: 0.7; }
+.shape-art i.block { background: transparent; }
+.puzzle-tile.locked .shape-art i { opacity: 0.3; }
+
+.board-art i { opacity: 0.4; }
+.board-art i.edge-r { box-shadow: 1px 0 0 0 var(--magenta); }
+.board-art i.edge-b { box-shadow: 0 1px 0 0 var(--magenta); }
+.board-art i.edge-r.edge-b { box-shadow: 1px 0 0 0 var(--magenta), 0 1px 0 0 var(--magenta); }
+
+.tile-pics {
+  font-size: clamp(10px, 2.1vmin, 17px);
+  line-height: 1.2;
+  letter-spacing: 0;
+  min-height: 1.2em;
+}
+
+/* ---- the crossword --------------------------------------------------- */
+
+#screen-crossword,
+#screen-sudoku { justify-content: flex-start; gap: 1.5vmin; }
+
+.xw-stage, .sud-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 3vmin, 34px);
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+.xw-grid {
+  display: grid;
+  gap: 3px;
+  padding: 1.4vmin;
+  background: #05050c;
+  border: 3px solid var(--dim);
+  border-radius: 6px;
+  /* Sized from the cells out: a fixed square per column, capped at the screen.
+     The tallest puzzle is six rows, which still leaves the HUD its space. */
+  width: min(86vw, calc(var(--xw-cols) * clamp(40px, 9.5vmin, 84px)));
+}
+
+.xw-cell {
+  position: relative;
+  aspect-ratio: 1;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: var(--bg-cell);
+  border: 2px solid var(--dim);
+  border-radius: 3px;
+  container-type: inline-size;
+}
+
+.xw-cell.block {
+  background: #05050c;
+  border-color: #05050c;
+}
+
+.xw-number {
+  position: absolute;
+  top: 4%;
+  left: 6%;
+  font-size: 24cqw;
+  font-style: normal;
+  color: var(--dim);
+  line-height: 1;
+}
+
+.xw-letter { font-size: 52cqw; line-height: 1; color: var(--ink); }
+
+.xw-cell.active { border-color: var(--yellow); box-shadow: 0 0 12px rgba(255, 212, 0, 0.35); }
+
+.xw-cell.solved         { border-color: var(--green); }
+.xw-cell.solved .xw-letter { color: var(--green); text-shadow: 0 0 8px currentColor; }
+.xw-cell.solved-perfect { border-color: var(--gold); }
+.xw-cell.solved-perfect .xw-letter { color: var(--gold); text-shadow: 0 0 10px currentColor; }
+.xw-cell.just-solved { animation: pop 350ms ease-out; }
+
+/* The clues. A picture and its number -- there is nothing to read. */
+.clue-rail {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 1.2vmin;
+  max-height: 62vh;
+  align-content: flex-start;
+}
+
+.clue {
+  display: flex;
+  align-items: center;
+  gap: 1vmin;
+  min-width: 0;
+  min-height: 0;
+  padding: 0.8vmin 1.4vmin;
+  background: var(--bg-panel);
+}
+
+.clue-number {
+  font-size: clamp(8px, 1.5vmin, 12px);
+  font-style: normal;
+  color: var(--dim);
+}
+
+.clue-pic { font-size: clamp(20px, 4.6vmin, 40px); line-height: 1; }
+
+.clue.active { border-color: var(--yellow); }
+.clue.done { opacity: 0.34; }
+.clue.done .clue-pic { filter: grayscale(1); }
+
+/* The word card: one big picture over a row of letter boxes. */
+.word-card { gap: 2vmin; }
+
+.word-picture {
+  font-size: clamp(52px, 15vmin, 130px);
+  line-height: 1;
+}
+
+.word-slots { display: flex; gap: 1.4vmin; }
+
+.word-slot {
+  display: grid;
+  place-items: center;
+  width: clamp(34px, 8vmin, 62px);
+  aspect-ratio: 0.86;
+  font-size: clamp(18px, 4.4vmin, 34px);
+  background: var(--bg-cell);
+  border: 3px solid var(--dim);
+  border-bottom-width: 5px;
+  border-radius: 4px;
+}
+
+/* Letters the crossing words already put there. He does not have to guess these. */
+.word-slot.locked { color: var(--gold); border-color: rgba(255, 207, 64, 0.5); }
+.word-slot.here   { border-color: var(--cyan); box-shadow: 0 0 12px rgba(0, 229, 255, 0.4); }
+
+.card.right .word-slot   { border-color: var(--green); color: var(--green); }
+.card.reveal .word-slot  { border-color: var(--yellow); color: var(--yellow); }
+
+/* ---- the sudoku ------------------------------------------------------ */
+
+.sud-grid {
+  /* One number for the whole board: the squares and the fruit in them are both
+     sized off it, so a 9x9 shrinks its symbols instead of overflowing. */
+  --sud-board: min(84vw, 60vh);
+
+  display: grid;
+  gap: 2px;
+  padding: 1.2vmin;
+  background: #05050c;
+  border: 3px solid var(--dim);
+  border-radius: 6px;
+  width: var(--sud-board);
+  aspect-ratio: 1;
+}
+
+.sud-cell {
+  aspect-ratio: 1;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: var(--bg-cell);
+  border: 1px solid #2a2a4e;
+  border-radius: 2px;
+  font-size: calc(var(--sud-board) / var(--sud-n) * 0.62);
+  line-height: 1;
+  color: var(--ink);
+}
+
+/* Box walls. Without these a 9x9 is just eighty-one squares. */
+.sud-cell.edge-r { border-right: 3px solid var(--magenta); }
+.sud-cell.edge-b { border-bottom: 3px solid var(--magenta); }
+
+/* The numbers the puzzle came with. Quieter than the ones he put in, but still
+   plainly readable -- they are what the whole board is deduced from. */
+.sud-cell.given { background: #101026; color: #9a9ac8; }
+.sud-cell.empty { animation: pulse 3s ease-in-out infinite; }
+.sud-cell.peer  { background: #1f1f42; }
+.sud-cell.sel {
+  border-color: var(--yellow);
+  box-shadow: 0 0 14px rgba(255, 212, 0, 0.45);
+  background: #262650;
+  animation: none;
+}
+
+.sud-cell.solved         { color: var(--green); text-shadow: 0 0 8px currentColor; }
+.sud-cell.solved-perfect { color: var(--gold); text-shadow: 0 0 10px currentColor; }
+.sud-cell.just-solved    { animation: pop 350ms ease-out; }
+.sud-cell.bad {
+  animation: shake 400ms;
+  color: var(--red);
+  border-color: var(--red);
+  background: rgba(255, 77, 94, 0.18);
+}
+
+.sud-palette {
+  display: grid;
+  /* Two columns of fruit, three of digits: nine keys in one tall strip is a reach. */
+  grid-template-columns: repeat(var(--pal-cols, 2), 1fr);
+  gap: 1.2vmin;
+}
+
+.sud-key {
+  display: grid;
+  place-items: center;
+  width: clamp(46px, 9vmin, 78px);
+  aspect-ratio: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  font-size: clamp(20px, 4.4vmin, 38px);
+  line-height: 1;
+}
+
+/* Every one of these is already on the board -- nothing left to place. */
+.sud-key.spent { opacity: 0.22; }
+
+/* Portrait: the clue rail and the palette go under the board, not beside it. */
+@media (max-aspect-ratio: 1/1) {
+  .xw-stage, .sud-stage { flex-direction: column; gap: 1.6vmin; }
+  .clue-rail { flex-direction: row; max-height: none; max-width: 94vw; justify-content: center; }
+  .sud-palette { grid-template-columns: repeat(var(--pal-n), 1fr); }
+  .sud-grid { --sud-board: min(88vw, 52vh); }
+}

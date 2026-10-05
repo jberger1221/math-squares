@@ -1,0 +1,10 @@
+{
+  "name": "math-squares",
+  "version": "1.0.0",
+  "description": "An 80s-arcade addition-table game for kids who can't read yet.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  }
+}

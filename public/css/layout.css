@@ -1,0 +1,482 @@
+/* MATH SQUARES -- screens, grid, keypad, pop-out card. */
+
+#app { position: relative; height: 100%; width: 100%; }
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2vmin;
+  padding: 3vmin;
+  overflow: auto;
+}
+.screen.active { display: flex; }
+
+.title-lg { font-size: clamp(20px, 5vmin, 44px); margin: 0; }
+.title-md { font-size: clamp(14px, 3vmin, 24px); margin: 0; }
+.title-sm { font-size: clamp(10px, 1.9vmin, 15px); margin: 0; color: var(--dim); }
+
+/* ---- title screen ---------------------------------------------------- */
+
+#screen-title { justify-content: center; }
+
+.title-stack { text-align: center; z-index: 2; display: flex; flex-direction: column; gap: 3vmin; align-items: center; }
+.press-start { font-size: clamp(12px, 2.6vmin, 22px); }
+
+/* The attract-mode demo grid living behind the logo. */
+#demo-grid {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.16;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.corner-hint {
+  position: absolute;
+  bottom: 2vmin;
+  font-size: clamp(8px, 1.4vmin, 11px);
+  color: var(--dim);
+  z-index: 2;
+}
+
+.build-stamp {
+  position: absolute;
+  right: 2vmin;
+  bottom: 2vmin;
+  margin: 0;
+  font-size: clamp(7px, 1.2vmin, 10px);
+  color: #33335c;
+  z-index: 2;
+}
+
+/* ---- name entry ------------------------------------------------------ */
+
+.name-display {
+  font-size: clamp(24px, 6vmin, 52px);
+  color: var(--yellow);
+  text-shadow: 0 0 8px currentColor;
+  letter-spacing: 0.2em;
+  min-height: 1.4em;
+  border-bottom: 4px solid var(--dim);
+  padding: 0 0.3em 0.15em;
+  min-width: 6em;
+  text-align: center;
+}
+.name-caret { animation: blink 700ms steps(1) infinite; color: var(--cyan); }
+
+.known-players { display: flex; flex-wrap: wrap; gap: 1.5vmin; justify-content: center; max-width: 90vw; }
+.known-players button {
+  font-size: clamp(11px, 2vmin, 18px);
+  padding: 1.4vmin 2.4vmin;
+  border-color: var(--magenta);
+  color: var(--magenta);
+}
+
+.letter-pad {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 1vmin;
+  max-width: min(92vw, 620px);
+  width: 100%;
+}
+.letter-pad button {
+  aspect-ratio: 1;
+  min-width: 0;
+  min-height: 0;
+  font-size: clamp(10px, 2.4vmin, 20px);
+  padding: 0;
+}
+
+/* ---- level select ---------------------------------------------------- */
+
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2vmin;
+  max-width: min(92vw, 640px);
+  width: 100%;
+}
+
+.level-tile {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8vmin;
+  padding: 1.5vmin;
+  min-width: 0;
+  min-height: 0;
+}
+.level-tile.locked { color: var(--dim); border-color: #262646; }
+.level-tile.done      { border-color: var(--green); }
+.level-tile.perfect   { border-color: var(--gold); box-shadow: 0 0 14px rgba(255, 207, 64, 0.4); }
+.level-tile.progress  { border-color: var(--cyan); }
+
+/* Miniature dot-drawing of the grid, so size is readable without words. */
+.tile-dots { display: grid; gap: 2px; width: 55%; aspect-ratio: 1; }
+.tile-dots i { background: currentColor; border-radius: 1px; opacity: 0.75; }
+.level-tile.locked .tile-dots i { opacity: 0.35; }
+
+.tile-badge { font-size: clamp(10px, 2vmin, 16px); }
+.tile-size  { font-size: clamp(8px, 1.5vmin, 12px); color: var(--dim); }
+
+/* ---- game screen ----------------------------------------------------- */
+
+#screen-game { justify-content: flex-start; gap: 1.5vmin; }
+
+.hud {
+  display: flex;
+  align-items: center;
+  gap: 2.5vmin;
+  width: 100%;
+  max-width: min(96vw, 900px);
+  font-size: clamp(9px, 1.8vmin, 15px);
+  flex-wrap: wrap;
+}
+.hud-item { display: flex; align-items: center; gap: 0.6vmin; }
+.hud-spacer { flex: 1; }
+.hud button {
+  min-width: 0;
+  min-height: 0;
+  padding: 0.9vmin 1.6vmin;
+  font-size: clamp(10px, 1.8vmin, 15px);
+  border-width: 2px;
+}
+#hud-streak.hot { color: var(--yellow); text-shadow: 0 0 8px currentColor; }
+
+/* ---- the table ------------------------------------------------------- */
+
+/* The stage holds the grid and the dancer. Side by side when there is width for
+   it; stacked when there isn't, because on a phone the dancer would squeeze the
+   grid down to nothing. */
+.stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2vmin;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+}
+@media (max-aspect-ratio: 1/1) {
+  .stage { flex-direction: column; }
+  .stage .dancer { width: min(21vmin, 130px); height: min(21vmin, 130px); }
+}
+
+.grid-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  height: 100%;
+  width: 100%;
+}
+
+/* A square that fits whichever of the two dimensions runs out first. */
+.grid {
+  display: grid;
+  gap: min(0.9vmin, 8px);
+  aspect-ratio: 1;
+  height: 100%;
+  width: auto;
+  max-height: min(100%, 780px);
+  max-width: min(100%, 780px);
+}
+
+.cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 4px;
+  border: 2px solid var(--dim);
+  background: var(--bg-cell);
+  container-type: inline-size;
+  padding: 0;
+  overflow: hidden;
+}
+/* Sized off the cell's own width, so 2x2 and 10x10 both fill their squares
+   and two digits ("10") always fit. */
+.cell span { font-size: 36cqw; line-height: 1; }
+
+/* The tick lives in the corner rather than beside the number: at 10x10 there
+   is no room for both on one line. */
+.cell.solved::after,
+.cell.solved-perfect::after {
+  content: '\2713';
+  position: absolute;
+  top: 4cqw;
+  right: 6cqw;
+  font-family: ui-monospace, 'Courier New', monospace;
+  font-size: 26cqw;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.cell.label {
+  background: transparent;
+  border-color: transparent;
+  color: var(--cyan);
+  cursor: default;
+}
+.cell.label.lit { color: var(--yellow); text-shadow: 0 0 10px currentColor; }
+.cell.corner { color: var(--magenta); }
+
+.cell.empty { animation: pulse 2.6s ease-in-out infinite; }
+.cell.empty:hover { border-color: var(--cyan); animation: none; opacity: 1; }
+
+.cell.active { border-color: var(--yellow); background: transparent; animation: none; }
+.cell.active span { opacity: 0; }
+
+.cell.solved {
+  border-color: var(--green);
+  color: var(--green);
+  background: rgba(61, 255, 139, 0.08);
+  animation: none;
+  cursor: default;
+}
+.cell.solved-perfect {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(255, 207, 64, 0.1);
+  box-shadow: 0 0 10px rgba(255, 207, 64, 0.35);
+  animation: none;
+  cursor: default;
+}
+.cell.just-solved { animation: pop 350ms ease-out; }
+
+/* ---- pop-out equation card ------------------------------------------- */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(4, 4, 12, 0.86);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3vmin;
+  overflow-y: auto;   /* the hint picture can make the card taller than the screen */
+}
+
+.card {
+  background: var(--bg-panel);
+  border: 4px solid var(--cyan);
+  border-radius: 10px;
+  box-shadow: 0 0 30px rgba(0, 229, 255, 0.35);
+  padding: 3vmin;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5vmin;
+  transform-origin: center;
+}
+.card.wrong { animation: shake 400ms; border-color: var(--red); box-shadow: 0 0 30px rgba(255, 77, 94, 0.5); }
+.card.right { border-color: var(--green); box-shadow: 0 0 40px rgba(61, 255, 139, 0.6); }
+
+.equation {
+  font-size: clamp(24px, 7vmin, 56px);
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  white-space: nowrap;
+}
+.equation .op   { color: var(--magenta); }
+.equation .eq   { color: var(--dim); }
+.equation .a, .equation .b { color: var(--cyan); text-shadow: 0 0 10px currentColor; }
+.answer-slot {
+  color: var(--yellow);
+  text-shadow: 0 0 10px currentColor;
+  min-width: 2.2em;
+  text-align: center;
+  border-bottom: 5px solid var(--dim);
+}
+.answer-slot .caret { animation: blink 600ms steps(1) infinite; }
+
+/* The row under the equation: tries on the left, the hint button on the right. */
+.card-meter {
+  display: flex;
+  align-items: center;
+  gap: 2.5vmin;
+  width: 100%;
+  justify-content: center;
+}
+
+.hint-btn {
+  min-width: 0;
+  min-height: 0;
+  width: clamp(44px, 8vmin, 62px);
+  height: clamp(44px, 8vmin, 62px);
+  padding: 0;
+  font-size: clamp(18px, 4vmin, 30px);
+  border-color: var(--yellow);
+  color: var(--yellow);
+  border-radius: 50%;
+}
+.hint-btn.on { background: var(--yellow); color: var(--bg); }
+
+/* ---- the counting picture -------------------------------------------- */
+
+.hint {
+  --apple: clamp(15px, 2.8vmin, 26px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.4vmin;
+  max-width: min(78vw, 560px);
+  max-height: 34vh;
+  overflow-y: auto;
+  padding: 1.6vmin;
+  border: 3px dashed var(--dim);
+  border-radius: 8px;
+  animation: pop 260ms ease-out;
+}
+.card.hinting .hint { display: flex; }
+
+.hint-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 0.5vmin;
+  padding: 1.2vmin;
+  border: 3px solid transparent;
+  border-radius: 6px;
+  /* Exactly five apples per row: two rows of five are far easier to count than one
+     row of ten, which is the same reason egg boxes are not 1x12.
+     box-sizing is border-box, so this must cover padding and border too. */
+  max-width: calc(5 * var(--apple) + 4 * 0.5vmin + 2 * 1.2vmin + 6px);
+}
+.hint-group.a { border-color: var(--cyan); background: rgba(0, 229, 255, 0.08); }
+.hint-group.b { border-color: var(--magenta); background: rgba(255, 47, 208, 0.08); }
+.hint-group.solo { border-color: var(--yellow); background: rgba(255, 212, 0, 0.07); }
+
+.hint-plus { font-size: clamp(16px, 3.4vmin, 28px); color: var(--magenta); }
+
+.hint-mul { gap: 1vmin; }
+
+/* Subtraction: a taken-away apple fades and gets a red cross through it. */
+.apple.gone {
+  opacity: 0.3;
+  background:
+    linear-gradient(45deg, transparent 44%, var(--magenta) 44% 56%, transparent 56%),
+    linear-gradient(-45deg, transparent 44%, var(--magenta) 44% 56%, transparent 56%);
+}
+
+.apple {
+  width: var(--apple);
+  height: auto;
+  image-rendering: pixelated;
+  display: block;
+}
+/* Five dots that go dark one at a time -- countable, no reading required. */
+.tries { display: flex; gap: 0.5em; align-items: center; }
+.tries i {
+  width: clamp(12px, 2.2vmin, 20px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #2a2a4e;
+  border: 2px solid #33335c;
+  transition: background 200ms ease, box-shadow 200ms ease;
+}
+.tries i.left { background: var(--green); border-color: var(--green); box-shadow: 0 0 8px var(--green); }
+.tries.last-chance i.left { background: var(--red); border-color: var(--red); box-shadow: 0 0 10px var(--red); animation: pulse 700ms ease-in-out infinite; }
+
+/* The answer being shown after the fifth miss. */
+.card.reveal { border-color: var(--yellow); box-shadow: 0 0 34px rgba(255, 212, 0, 0.5); }
+.card.reveal .answer-slot { color: var(--yellow); border-bottom-color: var(--yellow); }
+
+/* A banner that shows itself and then gets out of the way. */
+.flash-banner {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2vmin;
+  cursor: pointer;
+  text-align: center;
+  background: rgba(4, 4, 12, 0.7);
+  animation: pop 300ms ease-out;
+}
+.flash-banner .big { font-size: clamp(20px, 6vmin, 52px); }
+.flash-banner .sub { font-size: clamp(11px, 2.4vmin, 20px); color: var(--ink); }
+.flash-banner.leaving { opacity: 0; pointer-events: none; transition: opacity 400ms ease; }
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, var(--key-size));
+  gap: 1.2vmin;
+}
+.keypad button {
+  width: var(--key-size);
+  height: var(--key-size);
+  min-width: 0;
+  min-height: 0;
+  font-size: calc(var(--key-size) * 0.42);
+  padding: 0;
+}
+.keypad button.zero { grid-column: span 2; width: auto; }
+.keypad button.back { border-color: var(--red); color: var(--red); }
+.keypad button.ok   { border-color: var(--green); color: var(--green); }
+
+/* ---- dancer ---------------------------------------------------------- */
+
+.dancer {
+  image-rendering: pixelated;
+  width: min(28vmin, 175px);           /* the canvas has extra room for spinning, so */
+  height: min(28vmin, 175px);          /* it is drawn a little larger to keep him big */
+  flex: none;
+}
+
+/* ---- fireworks / level clear ----------------------------------------- */
+
+.fireworks {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  image-rendering: pixelated;
+  background: rgba(4, 4, 12, 0.55);
+}
+
+.clear-banner {
+  position: fixed;
+  inset: 0;
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3vmin;
+  pointer-events: none;
+  text-align: center;
+}
+.clear-banner .big { font-size: clamp(24px, 7vmin, 64px); animation: pop 500ms ease-out; }
+.clear-banner .sub { font-size: clamp(12px, 3vmin, 26px); }
+.clear-banner button { pointer-events: auto; font-size: clamp(11px, 2.2vmin, 18px); padding: 1.6vmin 3vmin; }
+
+/* ---- high scores ----------------------------------------------------- */
+
+.score-table { display: grid; grid-template-columns: auto 1fr auto; gap: 1vmin 3vmin; font-size: clamp(10px, 2vmin, 17px); }
+.score-table .rank { color: var(--dim); }
+.score-table .val  { color: var(--yellow); }
+.board-pair { display: flex; gap: 6vmin; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
+.board { display: flex; flex-direction: column; gap: 1.5vmin; align-items: center; }
+
+.row { display: flex; gap: 2vmin; flex-wrap: wrap; justify-content: center; align-items: center; }
