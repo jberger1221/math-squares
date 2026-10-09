@@ -78,6 +78,7 @@ body::after {
 .neon-pink   { color: var(--magenta); text-shadow: 0 0 6px currentColor, 0 0 18px currentColor; }
 .neon-yellow { color: var(--yellow);  text-shadow: 0 0 6px currentColor, 0 0 16px currentColor; }
 .neon-green  { color: var(--green);   text-shadow: 0 0 6px currentColor, 0 0 16px currentColor; }
+.neon-orange { color: #ff9a3c;         text-shadow: 0 0 6px currentColor, 0 0 16px currentColor; }
 
 /* ---- buttons -------------------------------------------------------- */
 

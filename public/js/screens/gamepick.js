@@ -1,4 +1,4 @@
-// Four cabinets in one arcade. Each tile draws the game it leads to, so the choice
+// Five cabinets in one arcade. Each tile draws the game it leads to, so the choice
 // can be made by a player who cannot read the name underneath it.
 
 import { go } from '../router.js';
@@ -44,11 +44,25 @@ function sudokuArt() {
   return art;
 }
 
+/** A picture and the letter it starts with: the whole letters game in two squares. */
+function lettersArt() {
+  const art = document.createElement('div');
+  art.className = 'game-art letters-art';
+  for (const [ch, cls] of [['🐍', 'pic'], ['S', 'neon-orange'], ['🐱', 'pic'], ['C', 'neon-orange']]) {
+    const cell = document.createElement('i');
+    cell.textContent = ch;
+    cell.className = cls;
+    art.append(cell);
+  }
+  return art;
+}
+
 const GAMES = [
   { screen: 'levelselect',     label: 'ADD',       art: mathArt('+', 'neon-pink'),   accent: 'neon',        op: 'add' },
   { screen: 'levelselect',     label: 'SUBTRACT',  art: mathArt('−', 'neon-yellow'), accent: 'neon-yellow', op: 'sub' },
   { screen: 'crosswordselect', label: 'CROSSWORD', art: crossArt,  accent: 'neon-pink' },
   { screen: 'sudokuselect',    label: 'SUDOKU',    art: sudokuArt, accent: 'neon-green' },
+  { screen: 'lettersselect',   label: 'LETTERS',   art: lettersArt, accent: 'neon-orange' },
 ];
 
 export function mount(el) {

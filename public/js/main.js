@@ -10,6 +10,8 @@ import * as crosswordselect from './screens/crosswordselect.js';
 import * as crossword from './screens/crossword.js';
 import * as sudokuselect from './screens/sudokuselect.js';
 import * as sudoku from './screens/sudoku.js';
+import * as lettersselect from './screens/lettersselect.js';
+import * as letters from './screens/letters.js';
 import * as highscores from './screens/highscores.js';
 
 register('title', title);
@@ -21,6 +23,8 @@ register('crosswordselect', crosswordselect);
 register('crossword', crossword);
 register('sudokuselect', sudokuselect);
 register('sudoku', sudoku);
+register('lettersselect', lettersselect);
+register('letters', letters);
 register('highscores', highscores);
 
 // iPad: stop a stray double-tap from zooming the cabinet.

@@ -1,0 +1,25 @@
+<title>Math Squares</title>
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/puzzles.css">
+<style>
+  /* One look on purpose: the neon arcade cabinet is always dark. */
+  :root { color-scheme: dark; }
+  /* theme.css zeroes the page padding; keep the game clear of a phone's notch and home bar. */
+  html { padding-block: env(safe-area-inset-top, 0px) env(safe-area-inset-bottom, 0px); }
+</style>
+<div id="app">
+  <section id="screen-title"      class="screen"></section>
+  <section id="screen-nameentry"  class="screen"></section>
+  <section id="screen-gamepick"   class="screen"></section>
+  <section id="screen-levelselect" class="screen"></section>
+  <section id="screen-game"       class="screen"></section>
+  <section id="screen-crosswordselect" class="screen"></section>
+  <section id="screen-crossword"  class="screen"></section>
+  <section id="screen-sudokuselect"    class="screen"></section>
+  <section id="screen-sudoku"     class="screen"></section>
+  <section id="screen-lettersselect" class="screen"></section>
+  <section id="screen-letters"    class="screen"></section>
+  <section id="screen-highscores" class="screen"></section>
+</div>
+<script type="module" src="js/main.js"></script>

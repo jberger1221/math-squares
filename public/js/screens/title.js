@@ -4,6 +4,7 @@ import { go } from '../router.js';
 import { unlock, sfx } from '../audio.js';
 import { createGrid } from '../grid.js';
 import { answerFor, DEFAULT_OP } from '../levels.js';
+import { buildVersion } from '../api.js';
 
 const DEMO_SIZE = 4;
 let timer = null;
@@ -54,10 +55,11 @@ export function mount(el) {
   const stamp = document.createElement('p');
   stamp.className = 'build-stamp';
   el.append(stamp);
-  fetch('/api/version')
-    .then((r) => r.json())
-    .then(({ build }) => { stamp.textContent = `BUILD ${build}`; })
-    .catch(() => { stamp.textContent = 'OFFLINE'; });
+  // Published as an artifact there is no server and nothing to stamp.
+  buildVersion().then((build) => {
+    if (build) stamp.textContent = `BUILD ${build}`;
+    else if (build === undefined) stamp.textContent = 'OFFLINE';
+  });
 
   // Any tap or key starts the game -- and, crucially, is the gesture that lets
   // the browser turn the sound on.

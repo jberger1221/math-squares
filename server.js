@@ -23,6 +23,7 @@ const MIME = {
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
+  '.mp4': 'audio/mp4',   // the letters game's voice; Safari won't play it as a bare download
 };
 
 // ---------------------------------------------------------------- storage

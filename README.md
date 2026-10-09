@@ -4,9 +4,10 @@ An 80s-arcade puzzle cabinet, built for a five-year-old who cannot read yet.
 Everything is numbers, pictures, colour, sound and animation — no words you need
 to decode.
 
-Three games share the cabinet, and after typing a name you pick one from **PICK A
-GAME**: the addition grids, a picture crossword, and a fruit sudoku. Score, streak
-and per-level progress are shared across all three.
+Five games share the cabinet, and after typing a name you pick one from **PICK A
+GAME**: addition and subtraction grids, a picture crossword, a fruit sudoku, and a
+first-letter game. Score, streak, the dancer and per-level progress are shared across
+all of them.
 
 ## Start it
 
@@ -100,9 +101,38 @@ one). It always works, so there is no such thing as a board he cannot finish.
 Every board is generated fresh, with exactly one solution, and a half-finished one
 comes back exactly as you left it.
 
+## How to play: LETTERS
+
+Learning letter sounds: a picture appears, a voice says its name, and you tap the letter
+it starts with.
+
+1. Pick some letters. The levels follow the usual phonics order, a few new letters at a
+   time — S A T P, then I N M D, G O C E, K U R H, B F L J, V W Y Z Q — and the last one
+   mixes the whole alphabet. Early levels offer 2 letters to choose from, later ones 4.
+2. A picture pops up and the voice says the word. **Tap the picture** to hear it again
+   (or press Space).
+3. Tap the letter the word starts with. Each button shows the capital and the small
+   letter.
+   - **Right:** the voice says "see is for cat", the word appears under the picture with
+     its first letter lit, and the next picture comes up by itself.
+   - **Wrong:** the letter shakes and goes dark, and the voice says the word again so he
+     can listen for the first sound. Wrong letters stay out, so every picture ends right.
+4. 8 pictures a level (10 on the A–Z one), then fireworks.
+
+Every word starts with the plain sound of its letter (no "ship", "knife" or "giraffe"),
+X sits out because no word starts with its sound, and C, K and Q are never offered as
+each other's wrong answer, since "cat" really does start with a K sound. The 🔊 button
+mutes the voice along with everything else.
+
+The voice is Apple's **Zoe (Premium)**, recorded once into `public/audio/letters/` so it
+sounds the same on every device. After adding words, record the new lines on a Mac that
+has the voice (System Settings → Accessibility → Read & Speak → System voice → Manage
+Voices) with `node tools/record-voice.mjs "Zoe (Premium)"`. A line with no recording is
+read by the device's own best voice instead, so nothing breaks in the meantime.
+
 ## Lost progress? The 🔑
 
-The math, crossword and sudoku pickers have a 🔑 next to the player's name. Tap it, enter
+The math, crossword, sudoku and letters pickers have a 🔑 next to the player's name. Tap it, enter
 **6578**, and every locked tile turns into a 🔓 — tap one to jump straight into it. That
 opens just that level (the ones after it still unlock the normal way) and hands out no
 stars, score or evolution.
@@ -143,6 +173,18 @@ modules are cached in the *page's* module map for the lifetime of that page. Lea
 tab open across an edit means it keeps running the old code no matter what the server
 sends. A plain reload fixes it (Cmd-R); Cmd-Shift-R if you want to be certain.
 
+## Playing it away from home
+
+The game is also published as a claude.ai artifact, so it runs on any phone or computer
+without this Mac: https://claude.ai/artifact/52jztyfgHBVdozJH6wrqya (share it from the
+page's Share menu). There it has no server, so `public/js/api.js` saves somewhere else:
+the owner's progress goes to the artifact's own database, and everyone else's stays in
+their own browser. Players there start fresh; the saves on this Mac stay here.
+
+`tools/artifact-page.html` is the page that gets published, with every file under
+`public/` (except `index.html`) published beside it. Ask Claude to republish after
+changing the game.
+
 ## Poking at it
 
 No build step and no dependencies: it's plain ES modules served straight off disk.
@@ -157,5 +199,8 @@ Edit anything under `public/` and reload the page.
 - `public/js/sudoku/levels.js` — board sizes, difficulty and which fruit they use
 - `public/js/sudoku/generate.js` — the generator, including the uniqueness check that
   keeps every dug-out board solvable exactly one way
+- `public/js/letters/words.js` — the letters levels and every picture word. Add a word by
+  adding a `['word', 'emoji']` pair under its letter
+- `public/js/speech.js` — the voice for the letters game (the browser's built-in speech)
 - `public/js/dancer.js` — the character, drawn as text. Edit the strings to redraw him
 - `public/js/audio.js` — every sound, synthesised in the browser
