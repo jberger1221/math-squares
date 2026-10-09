@@ -102,7 +102,11 @@ comes back exactly as you left it.
 The crossword and sudoku pickers have a 🔑 next to the player's name. Tap it, enter
 **6578**, and every locked tile turns into a 🔓 — tap one to jump straight into it. That
 opens just that level (the ones after it still unlock the normal way) and hands out no
-stars, score or evolution. The math games are a single grid, so there is nothing to unlock.
+stars, score or evolution.
+
+The math games are a single grid with nothing to unlock, so the 🔑 on **PICK A GAME** does
+something else: after the same code it shows all 16 forms of the dancer, and tapping one
+sets the player to that stage, for when an evolution has been lost.
 
 ## Two kids, one cabinet
 

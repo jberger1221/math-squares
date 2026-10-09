@@ -3,7 +3,8 @@
 
 import { go } from '../router.js';
 import { sfx } from '../audio.js';
-import { getProfile, session } from '../state.js';
+import { getProfile, session, evolutionStage, setEvolutionStage } from '../state.js';
+import { createSkipKey, chooseStage } from '../skipcode.js';
 import { SIZE } from '../levels.js';
 
 /** A number grid in miniature, with its sign over the top: + or −. */
@@ -61,6 +62,10 @@ export function mount(el) {
     <span class="title-sm">SCORE ${profile.totalScore}</span>
     <span class="title-sm">BEST STREAK ${profile.bestStreak}</span>
   `;
+  // Math has no locked levels, so here the code puts back a lost dancer evolution.
+  header.append(createSkipKey({
+    onUnlocked: () => chooseStage({ current: evolutionStage(), onPick: setEvolutionStage }),
+  }));
 
   const heading = document.createElement('h2');
   heading.className = 'title-md neon';

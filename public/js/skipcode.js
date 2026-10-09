@@ -4,6 +4,7 @@
 
 import { sfx } from './audio.js';
 import { createKeypad } from './keypad.js';
+import { createDancer, MAX_STAGE } from './dancer.js';
 
 const CODE = '6578';
 
@@ -93,4 +94,48 @@ function askForCode(onUnlocked) {
   backdrop.append(card);
   document.body.append(backdrop);
   paint();
+}
+
+/**
+ * After the code on PICK A GAME: every form of the dancer, to put a lost evolution
+ * back. Tapping one calls `onPick(stage)`.
+ */
+export function chooseStage({ current, onPick }) {
+  const backdrop = document.createElement('div');
+  backdrop.className = 'backdrop';
+
+  const card = document.createElement('div');
+  card.className = 'card stage-card';
+
+  const grid = document.createElement('div');
+  grid.className = 'stage-grid';
+
+  for (let stage = 0; stage <= MAX_STAGE; stage++) {
+    const tile = document.createElement('button');
+    tile.className = 'stage-tile';
+    if (stage === current) tile.classList.add('current');
+    tile.setAttribute('aria-label', `dancer stage ${stage}`);
+
+    const canvas = document.createElement('canvas');
+    canvas.className = 'dancer';
+    createDancer(canvas, { stage });   // stops drawing by itself once the panel is gone
+
+    const n = document.createElement('span');
+    n.textContent = String(stage);
+
+    tile.append(canvas, n);
+    tile.addEventListener('click', () => {
+      sfx.unlockChime();
+      backdrop.remove();
+      onPick(stage);
+    });
+    grid.append(tile);
+  }
+
+  card.append(grid);
+  card.addEventListener('click', (e) => e.stopPropagation());
+  backdrop.addEventListener('click', () => { sfx.close(); backdrop.remove(); });
+  backdrop.append(card);
+  document.body.append(backdrop);
+  grid.querySelector('.current')?.focus();
 }

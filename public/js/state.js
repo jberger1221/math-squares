@@ -123,6 +123,12 @@ export function recordMiss(op, size, r, c, usedTries) {
 /** Which form the dancer is in: one stage per puzzle finished, up to the last one. */
 export const evolutionStage = () => Math.min(profile?.clears || 0, MAX_STAGE);
 
+/** The grown-up's fix for a lost evolution: set how far the dancer has got. */
+export async function setEvolutionStage(stage) {
+  profile.clears = stage;
+  await saveNow();
+}
+
 /** Count one more finished puzzle, and say which stage he goes from and to. */
 function countClear() {
   const from = evolutionStage();
