@@ -11,7 +11,7 @@ let armed = false;
 let detach = null;
 
 function startDemo(host) {
-  const grid = createGrid({ size: DEMO_SIZE, op: DEFAULT_OP });
+  const grid = createGrid({ level: DEMO_SIZE, op: DEFAULT_OP });
   host.append(grid.el);
 
   const order = [];

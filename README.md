@@ -24,8 +24,11 @@ Stop it with `Ctrl-C`.
 
 1. Tap anywhere on the title screen.
 2. Tap your name, or spell it out on the big letter grid, then tap the green ✓.
-3. Tap **ADD** or **SUBTRACT**. Each one is a single 5×5 grid of the hardest facts:
-   addition is 6–10 + 6–10, subtraction is 16–20 − 6–10.
+3. Tap **ADD** or **SUBTRACT**.
+4. Pick a grid. Only the first is open at first; finishing one unlocks the next. Each
+   tile shows its numbers. 1–2, 1–3 and 1–4 are small grids; from 1–5 on, every grid is
+   5×5 and the numbers climb instead: 2–6, 3–7 … up to 6–10. Subtraction rows start
+   above the columns, so every answer is at least 1 (the last one is 16–20 − 6–10).
 5. Tap any empty square you like — the empty ones pulse, and you can work through the
    grid in whatever order you feel like. It pops open showing something like
    `3 + 4 = ▮`. Tap the number pad (or type on the keyboard) and press the green ✓
@@ -99,19 +102,19 @@ comes back exactly as you left it.
 
 ## Lost progress? The 🔑
 
-The crossword and sudoku pickers have a 🔑 next to the player's name. Tap it, enter
+The math, crossword and sudoku pickers have a 🔑 next to the player's name. Tap it, enter
 **6578**, and every locked tile turns into a 🔓 — tap one to jump straight into it. That
 opens just that level (the ones after it still unlock the normal way) and hands out no
 stars, score or evolution.
 
-The math games are a single grid with nothing to unlock, so the 🔑 on **PICK A GAME** does
-something else: after the same code it shows all 16 forms of the dancer, and tapping one
-sets the player to that stage, for when an evolution has been lost.
+The 🔑 on **PICK A GAME** does something else: after the same code it shows all 16 forms
+of the dancer, and tapping one sets the player to that stage, for when an evolution has
+been lost.
 
 ## Two kids, one cabinet
 
 Progress is saved per player, so handing the iPad over is safe. From any puzzle, press
-**←** to back out to **PICK A GAME** (from a crossword or sudoku, press it twice), then
+**←** to back out to the picker and again to reach **PICK A GAME**, then
 **↺ CHANGE PLAYER**. Everything answered so
 far is written to the server before you leave, and it's still there when that player
 comes back — including which squares were solved, which were solved on the first try,
@@ -146,7 +149,7 @@ No build step and no dependencies: it's plain ES modules served straight off dis
 Edit anything under `public/` and reload the page.
 
 - `server.js` — static files plus a four-route JSON API
-- `public/js/levels.js` — the grid size and which numbers go on the labels. `OPS` already contains
+- `public/js/levels.js` — the levels, which numbers go on their labels, and the unlock rules. `OPS` already contains
   multiplication; switching `session.op` to `'mul'` turns the whole game into a times table
 - `public/js/crossword/puzzles.js` — the crosswords, written as finished grids plus a
   word→emoji table. Entries are *derived* from the grid, so a puzzle whose words do

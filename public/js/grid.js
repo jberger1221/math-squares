@@ -1,12 +1,13 @@
 // The n x n table: label row, label column, and the answer cells.
 
-import { OPS, cellKey, rowValue, colValue } from './levels.js';
+import { OPS, cellKey, rowValue, colValue, gridSize } from './levels.js';
 
 /**
  * Build the grid DOM.
  * @returns {{el, cellAt, setSolved, setActive, size, forEachCell}}
  */
-export function createGrid({ size, op, onCell }) {
+export function createGrid({ level, op, onCell }) {
+  const size = gridSize(level);
   const wrap = document.createElement('div');
   wrap.className = 'grid-wrap';
 
@@ -35,12 +36,12 @@ export function createGrid({ size, op, onCell }) {
         corner.disabled = true;
         grid.append(corner);
       } else if (row === 0) {
-        const b = makeCell('label', String(colValue(size, col - 1)));   // column headings
+        const b = makeCell('label', String(colValue(level, col - 1)));   // column headings
         b.disabled = true;
         colLabels[col - 1] = b;
         grid.append(b);
       } else if (col === 0) {
-        const b = makeCell('label', String(rowValue(op, size, row - 1)));   // row headings
+        const b = makeCell('label', String(rowValue(op, level, row - 1)));   // row headings
         b.disabled = true;
         rowLabels[row - 1] = b;
         grid.append(b);
@@ -51,7 +52,7 @@ export function createGrid({ size, op, onCell }) {
         b.dataset.r = r;
         b.dataset.c = c;
         // Screen readers and curious grown-ups get the words; the kid gets the picture.
-        b.setAttribute('aria-label', `${rowValue(op, size, r)} ${OPS[op].symbol} ${colValue(size, c)}`);
+        b.setAttribute('aria-label', `${rowValue(op, level, r)} ${OPS[op].symbol} ${colValue(level, c)}`);
         // Highlighting the two labels shows WHERE the numbers come from.
         b.addEventListener('pointerenter', () => lightLabels(r, c, true));
         b.addEventListener('pointerleave', () => lightLabels(r, c, false));

@@ -2,7 +2,7 @@
 // Everything the server stores lives on `profile`; everything transient lives on `session`.
 
 import * as api from './api.js';
-import { levelId, blankLevelRecord, cellKey, DEFAULT_OP } from './levels.js';
+import { levelId, blankLevelRecord, cellKey, gridSize, DEFAULT_OP } from './levels.js';
 import { MAX_STAGE } from './dancer.js';
 
 export const session = {
@@ -34,7 +34,7 @@ export const lastPlayerName = () => localStorage.getItem('ms-last-player') || ''
 
 /**
  * Get (creating if needed) the saved record for any puzzle, keyed by a free-form id.
- * The addition grids use "add-4"; the crossword and sudoku screens use their own ids.
+ * The math grids use ids like "add-4"; the crossword and sudoku screens use their own ids.
  * One shelf for every game means one save path and one place progress can be lost.
  */
 export function puzzleRecord(id) {
@@ -53,13 +53,13 @@ export async function skipTo(id) {
 }
 
 /** Get (creating if needed) the saved record for one level. */
-export function levelRecord(op, size) {
-  return puzzleRecord(levelId(op, size));
+export function levelRecord(op, level) {
+  return puzzleRecord(levelId(op, level));
 }
 
 /** Wrong guesses already spent on one square, across every visit to this grid. */
-export function triesOn(op, size, r, c) {
-  return levelRecord(op, size).tries[cellKey(r, c)] || 0;
+export function triesOn(op, level, r, c) {
+  return levelRecord(op, level).tries[cellKey(r, c)] || 0;
 }
 
 // Debounced save: a fast streak of answers becomes one request, not twenty.
@@ -91,8 +91,8 @@ export function pointsFor(firstTry, streak) {
  * Record a correct answer. `firstTry` is false if this cell was ever missed.
  * Returns the points awarded so the UI can float them.
  */
-export function recordCorrect(op, size, r, c, firstTry) {
-  const rec = levelRecord(op, size);
+export function recordCorrect(op, level, r, c, firstTry) {
+  const rec = levelRecord(op, level);
   rec.filled[cellKey(r, c)] = firstTry;
 
   const points = pointsFor(firstTry, session.streak);
@@ -110,8 +110,8 @@ export function recordCorrect(op, size, r, c, firstTry) {
  * it is stored on the level rather than in the screen -- otherwise backing out to the
  * menu would refund the five tries and wash the miss off the record.
  */
-export function recordMiss(op, size, r, c, usedTries) {
-  const rec = levelRecord(op, size);
+export function recordMiss(op, level, r, c, usedTries) {
+  const rec = levelRecord(op, level);
   rec.tries[cellKey(r, c)] = usedTries;
   rec.mistakes += 1;
   rec.perfect = false;
@@ -137,9 +137,9 @@ function countClear() {
 }
 
 /** Called when every cell is filled. Returns the bonus breakdown for the banner. */
-export function completeLevel(op, size, elapsedMs, runScore) {
-  const rec = levelRecord(op, size);
-  const cells = size * size;
+export function completeLevel(op, level, elapsedMs, runScore) {
+  const rec = levelRecord(op, level);
+  const cells = gridSize(level) ** 2;
   const completionBonus = cells * 5;
   // Perfect means every cell was answered on the first try -- which is exactly
   // what `filled` records, so it survives a stop-and-resume across days.
@@ -161,8 +161,8 @@ export function completeLevel(op, size, elapsedMs, runScore) {
 }
 
 /** Wipe a level's saved progress so it can be replayed from scratch. */
-export function resetLevelRun(op, size) {
-  const rec = levelRecord(op, size);
+export function resetLevelRun(op, level) {
+  const rec = levelRecord(op, level);
   rec.filled = {};
   rec.tries = {};
   rec.mistakes = 0;

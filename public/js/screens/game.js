@@ -7,7 +7,7 @@ import { openPopout } from '../popout.js';
 import { createDancer } from '../dancer.js';
 import { playEvolution } from '../evolve.js';
 import { runFireworks } from '../fireworks.js';
-import { OPS, cellKey, operands, answerFor, maxAnswer } from '../levels.js';
+import { OPS, LEVELS, cellKey, operands, answerFor, maxAnswer, gridSize, isUnlocked, levelRange } from '../levels.js';
 import {
   getProfile, session, evolutionStage, levelRecord, recordCorrect, recordMiss, triesOn,
   completeLevel, resetLevelRun, saveNow, setMuted,
@@ -21,7 +21,8 @@ let activeRun = null;   // cleared on unmount, so in-flight callbacks know to st
 
 const MAX_TRIES = 5;    // wrong guesses allowed on any one square
 
-export function mount(el, { size, op }) {
+export function mount(el, { level, op }) {
+  const size = gridSize(level);
   // The pop-out finishes its animation ~400ms after a correct answer. If the player
   // leaves in that window the callback still fires, so it has to be able to tell that
   // this screen is gone -- otherwise it launches fireworks over the menu.
@@ -32,8 +33,8 @@ export function mount(el, { size, op }) {
   const symbol = OPS[op].symbol;
 
   // Replaying a finished grid starts it clean; an unfinished one picks up where he left off.
-  let rec = levelRecord(op, size);
-  if (rec.completed) rec = resetLevelRun(op, size);
+  let rec = levelRecord(op, level);
+  if (rec.completed) rec = resetLevelRun(op, level);
 
   const solved = new Set(Object.keys(rec.filled));
   const total = size * size;
@@ -49,7 +50,7 @@ export function mount(el, { size, op }) {
 
   const back = document.createElement('button');
   back.textContent = '←';
-  back.setAttribute('aria-label', 'back to games');
+  back.setAttribute('aria-label', 'back to levels');
   back.addEventListener('click', leave);
 
   const who = document.createElement('span');
@@ -85,10 +86,10 @@ export function mount(el, { size, op }) {
 
   // ---- grid -----------------------------------------------------------------
 
-  const grid = createGrid({ size, op, onCell: open });
+  const grid = createGrid({ level, op, onCell: open });
   for (const key of solved) {
     const [r, c] = key.split(',').map(Number);
-    grid.setSolved(r, c, answerFor(op, size, r, c), rec.filled[key], false);
+    grid.setSolved(r, c, answerFor(op, level, r, c), rec.filled[key], false);
   }
 
   const stage = document.createElement('div');
@@ -114,21 +115,21 @@ export function mount(el, { size, op }) {
   function open(r, c, cellEl) {
     if (popout || finished || solved.has(cellKey(r, c))) return;
     const key = cellKey(r, c);
-    const [a, b] = operands(op, size, r, c);
+    const [a, b] = operands(op, level, r, c);
     grid.setActive(r, c, true);
 
     popout = openPopout({
       cellEl,
       a, b, op, symbol,
-      expected: answerFor(op, size, r, c),
+      expected: answerFor(op, level, r, c),
       hintOpen: hintSticky,
       onHint: (on = true) => { hintSticky = on; },
-      maxLen: String(maxAnswer(op, size)).length,
+      maxLen: String(maxAnswer(op, level)).length,
       maxTries: MAX_TRIES,
-      usedTries: triesOn(op, size, r, c),
+      usedTries: triesOn(op, level, r, c),
       onWrong: (used) => {
         if (!run.live) return;
-        recordMiss(op, size, r, c, used);
+        recordMiss(op, level, r, c, used);
         dancer.play('sad');
         paintHud();
       },
@@ -142,10 +143,10 @@ export function mount(el, { size, op }) {
         popout = null;
         if (!run.live) return;
         grid.setActive(r, c, false);
-        const firstTry = cleanAttempt && triesOn(op, size, r, c) === 0;
+        const firstTry = cleanAttempt && triesOn(op, level, r, c) === 0;
         solved.add(key);
-        runScore += recordCorrect(op, size, r, c, firstTry);
-        grid.setSolved(r, c, answerFor(op, size, r, c), firstTry, true);
+        runScore += recordCorrect(op, level, r, c, firstTry);
+        grid.setSolved(r, c, answerFor(op, level, r, c), firstTry, true);
         dancer.play('dance');
         paintHud();
 
@@ -170,7 +171,7 @@ export function mount(el, { size, op }) {
     if (!run.live || finished) return;
     solved.clear();
     runScore = 0;
-    resetLevelRun(op, size);
+    resetLevelRun(op, level);
     grid.reset();
     paintHud();
     sfx.wipe();
@@ -219,7 +220,7 @@ export function mount(el, { size, op }) {
     if (!run.live || finished) return;
     finished = true;
     const elapsed = performance.now() - startedAt;
-    const result = completeLevel(op, size, elapsed, runScore);
+    const result = completeLevel(op, level, elapsed, runScore);
     await saveNow();
     if (!run.live) return;
     paintHud();
@@ -231,6 +232,10 @@ export function mount(el, { size, op }) {
     fx.className = 'fireworks';
     document.body.append(fx);
     stopFireworks = runFireworks(fx, { shells: 9, spread: 5200 });
+
+    const nextLevel = LEVELS[LEVELS.indexOf(level) + 1];
+    const justUnlocked = nextLevel && isUnlocked(profile, op, nextLevel);
+    if (justUnlocked) setTimeout(() => sfx.unlockChime(), 1400);
 
     const banner = document.createElement('div');
     banner.className = 'clear-banner';
@@ -251,11 +256,24 @@ export function mount(el, { size, op }) {
     const row = document.createElement('div');
     row.className = 'row';
 
+    if (justUnlocked) {
+      const [lo, hi] = levelRange(nextLevel);
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'neon-green';
+      nextBtn.style.borderColor = 'var(--green)';
+      nextBtn.textContent = `NEXT ▶ ${lo}–${hi}`;
+      nextBtn.addEventListener('click', () => {
+        cleanupCelebration(banner);
+        go('game', { level: nextLevel, op });
+      });
+      row.append(nextBtn);
+    }
+
     const menuBtn = document.createElement('button');
     menuBtn.textContent = '☰ MENU';
     menuBtn.addEventListener('click', () => {
       cleanupCelebration(banner);
-      go('gamepick');
+      go('levelselect');
     });
     row.append(menuBtn);
 
@@ -276,7 +294,7 @@ export function mount(el, { size, op }) {
 
   async function leave() {
     await saveNow();
-    go('gamepick');
+    go('levelselect');
   }
 
   keyHandler = (e) => {
