@@ -94,39 +94,9 @@
   padding: 0;
 }
 
-/* ---- level select ---------------------------------------------------- */
-
-.level-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 2vmin;
-  max-width: min(92vw, 640px);
-  width: 100%;
-}
-
-.level-tile {
-  aspect-ratio: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.8vmin;
-  padding: 1.5vmin;
-  min-width: 0;
-  min-height: 0;
-}
-.level-tile.locked { color: var(--dim); border-color: #262646; }
-.level-tile.done      { border-color: var(--green); }
-.level-tile.perfect   { border-color: var(--gold); box-shadow: 0 0 14px rgba(255, 207, 64, 0.4); }
-.level-tile.progress  { border-color: var(--cyan); }
-
-/* Miniature dot-drawing of the grid, so size is readable without words. */
-.tile-dots { display: grid; gap: 2px; width: 55%; aspect-ratio: 1; }
-.tile-dots i { background: currentColor; border-radius: 1px; opacity: 0.75; }
-.level-tile.locked .tile-dots i { opacity: 0.35; }
+/* ---- puzzle-picker tiles ------------------------------------------- */
 
 .tile-badge { font-size: clamp(10px, 2vmin, 16px); }
-.tile-size  { font-size: clamp(8px, 1.5vmin, 12px); color: var(--dim); }
 
 /* ---- game screen ----------------------------------------------------- */
 
@@ -169,7 +139,7 @@
 }
 @media (max-aspect-ratio: 1/1) {
   .stage { flex-direction: column; }
-  .stage .dancer { width: min(21vmin, 130px); height: min(21vmin, 130px); }
+  .stage .dancer { width: min(26vmin, 160px); height: min(26vmin, 160px); }
 }
 
 .grid-wrap {
@@ -440,8 +410,8 @@
 
 .dancer {
   image-rendering: pixelated;
-  width: min(28vmin, 175px);           /* the canvas has extra room for spinning, so */
-  height: min(28vmin, 175px);          /* it is drawn a little larger to keep him big */
+  width: min(34vmin, 215px);           /* the canvas has room for spinning and for his */
+  height: min(34vmin, 215px);          /* grown-up sparkles, so it is drawn larger */
   flex: none;
 }
 
@@ -467,6 +437,7 @@
   pointer-events: none;
   text-align: center;
 }
+.clear-banner .evolve { width: min(42vmin, 320px); height: min(42vmin, 320px); }
 .clear-banner .big { font-size: clamp(24px, 7vmin, 64px); animation: pop 500ms ease-out; }
 .clear-banner .sub { font-size: clamp(12px, 3vmin, 26px); }
 .clear-banner button { pointer-events: auto; font-size: clamp(11px, 2.2vmin, 18px); padding: 1.6vmin 3vmin; }

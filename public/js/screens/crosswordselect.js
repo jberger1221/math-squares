@@ -3,7 +3,8 @@
 
 import { go } from '../router.js';
 import { sfx } from '../audio.js';
-import { getProfile, puzzleRecord } from '../state.js';
+import { createSkipKey } from '../skipcode.js';
+import { getProfile, puzzleRecord, skipTo } from '../state.js';
 import { PUZZLES } from '../crossword/puzzles.js';
 import { buildPuzzle, BLOCK } from '../crossword/build.js';
 
@@ -26,6 +27,7 @@ function shapeArt(puzzle) {
 
 function isUnlocked(profile, index) {
   if (index === 0) return true;
+  if (profile?.levels?.[recordId(PUZZLES[index].id)]?.unlocked) return true;   // the code
   return Boolean(profile?.levels?.[recordId(PUZZLES[index - 1].id)]?.completed);
 }
 
@@ -65,6 +67,7 @@ export function mount(el) {
 
   const next = suggestedPuzzle(profile);
   let focusTile = null;
+  const locked = [];   // [tile, badge, open, record id] for each one the code can open
 
   for (const [index, puzzle] of PUZZLES.entries()) {
     const built = buildPuzzle(puzzle);
@@ -101,8 +104,29 @@ export function mount(el) {
         sfx.navigate();
         go('crossword', { id: puzzle.id });
       });
+    } else {
+      locked.push([tile, badge, () => go('crossword', { id: puzzle.id }), recordId(puzzle.id)]);
     }
     grid.append(tile);
+  }
+
+  // The code turns every lock into an open padlock; tapping one jumps straight in.
+  if (locked.length) {
+    header.append(createSkipKey({
+      onUnlocked: () => {
+        for (const [tile, badge, open, id] of locked) {
+          tile.disabled = false;
+          tile.classList.replace('locked', 'skippable');
+          badge.textContent = '🔓';
+          tile.addEventListener('click', async () => {
+            sfx.navigate();
+            await skipTo(id);
+            open();
+          });
+        }
+        locked[0][0].focus();
+      },
+    }));
   }
 
   el.append(header, heading, grid);

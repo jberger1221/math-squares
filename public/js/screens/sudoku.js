@@ -9,11 +9,12 @@
 import { go } from '../router.js';
 import { sfx } from '../audio.js';
 import { createDancer } from '../dancer.js';
+import { playEvolution } from '../evolve.js';
 import { runFireworks } from '../fireworks.js';
 import { makeSudoku, shapeFor } from '../sudoku/generate.js';
 import { SUDOKU_LEVELS, sudokuById, sudokuRecordId } from '../sudoku/levels.js';
 import {
-  getProfile, session, puzzleRecord, puzzleTriesOn, recordPuzzleCorrect,
+  getProfile, session, evolutionStage, puzzleRecord, puzzleTriesOn, recordPuzzleCorrect,
   recordPuzzleMiss, completePuzzle, resetPuzzle, save, saveNow, setMuted,
 } from '../state.js';
 
@@ -143,7 +144,7 @@ export function mount(el, { id }) {
 
   const canvas = document.createElement('canvas');
   canvas.className = 'dancer';
-  dancer = createDancer(canvas);
+  dancer = createDancer(canvas, { stage: evolutionStage() });
 
   stage.append(board, palette, canvas);
   el.append(hud, stage);
@@ -302,6 +303,11 @@ export function mount(el, { id }) {
     const banner = document.createElement('div');
     banner.className = 'clear-banner';
 
+    // The big version of him takes the stage dancer's place while he evolves.
+    const evo = playEvolution(result.evolution);
+    canvas.style.visibility = 'hidden';
+    dancer.setLook({ stage: result.evolution.to });
+
     const big = document.createElement('div');
     big.className = `big ${result.perfect ? 'neon-yellow' : 'neon-green'}`;
     big.textContent = result.perfect ? '★ PERFECT ★' : 'ALL DONE!';
@@ -333,11 +339,11 @@ export function mount(el, { id }) {
     });
     row.append(menuBtn);
 
-    banner.append(big, sub, row);
+    banner.append(evo.el, big, sub, row);
     document.body.append(banner);
     row.style.opacity = '0';
     row.style.transition = 'opacity 600ms';
-    setTimeout(() => { row.style.opacity = '1'; }, 2600);
+    setTimeout(() => { row.style.opacity = '1'; }, Math.max(2600, evo.ms + 600));
   }
 
   function cleanupCelebration(banner) {

@@ -1,6 +1,6 @@
 // The n x n table: label row, label column, and the answer cells.
 
-import { OPS, cellKey, rowValue } from './levels.js';
+import { OPS, cellKey, rowValue, colValue } from './levels.js';
 
 /**
  * Build the grid DOM.
@@ -35,7 +35,7 @@ export function createGrid({ size, op, onCell }) {
         corner.disabled = true;
         grid.append(corner);
       } else if (row === 0) {
-        const b = makeCell('label', String(col));   // column headings: 1..n
+        const b = makeCell('label', String(colValue(size, col - 1)));   // column headings
         b.disabled = true;
         colLabels[col - 1] = b;
         grid.append(b);
@@ -51,7 +51,7 @@ export function createGrid({ size, op, onCell }) {
         b.dataset.r = r;
         b.dataset.c = c;
         // Screen readers and curious grown-ups get the words; the kid gets the picture.
-        b.setAttribute('aria-label', `${rowValue(op, size, r)} ${OPS[op].symbol} ${col}`);
+        b.setAttribute('aria-label', `${rowValue(op, size, r)} ${OPS[op].symbol} ${colValue(size, c)}`);
         // Highlighting the two labels shows WHERE the numbers come from.
         b.addEventListener('pointerenter', () => lightLabels(r, c, true));
         b.addEventListener('pointerleave', () => lightLabels(r, c, false));

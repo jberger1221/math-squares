@@ -24,8 +24,8 @@ Stop it with `Ctrl-C`.
 
 1. Tap anywhere on the title screen.
 2. Tap your name, or spell it out on the big letter grid, then tap the green ✓.
-3. Tap **MATH**.
-4. Pick a grid. Only the small ones are open at first; finishing one unlocks the next.
+3. Tap **ADD** or **SUBTRACT**. Each one is a single 5×5 grid of the hardest facts:
+   addition is 6–10 + 6–10, subtraction is 16–20 − 6–10.
 5. Tap any empty square you like — the empty ones pulse, and you can work through the
    grid in whatever order you feel like. It pops open showing something like
    `3 + 4 = ▮`. Tap the number pad (or type on the keyboard) and press the green ✓
@@ -43,7 +43,11 @@ Stop it with `Ctrl-C`.
    long line. The picture appears on its own when you are down to your last try.
    Once you turn the picture on it stays on for the rest of the grid — press **?**
    again to put it away.
-7. Fill every square and the fireworks go off.
+7. Fill every square and the fireworks go off — and the little guy **evolves**. He
+   flickers between his old and new shapes and comes out a bit bigger and brighter.
+   Every finished grid, crossword or sudoku moves him one step, and there are 15:
+   rosy cheeks, gold tips, longer spokes, sparkles, a golden glow, and finally a
+   rainbow halo. After that he just celebrates.
 
 Gold squares were right on the first try; green ones took more than one go. A grid where
 **every** square is gold earns a ★ PERFECT and a bonus.
@@ -93,10 +97,17 @@ one). It always works, so there is no such thing as a board he cannot finish.
 Every board is generated fresh, with exactly one solution, and a half-finished one
 comes back exactly as you left it.
 
+## Lost progress? The 🔑
+
+The crossword and sudoku pickers have a 🔑 next to the player's name. Tap it, enter
+**6578**, and every locked tile turns into a 🔓 — tap one to jump straight into it. That
+opens just that level (the ones after it still unlock the normal way) and hands out no
+stars, score or evolution. The math games are a single grid, so there is nothing to unlock.
+
 ## Two kids, one cabinet
 
 Progress is saved per player, so handing the iPad over is safe. From any puzzle, press
-**←** to back out to the picker and again to reach **PICK A GAME**, then
+**←** to back out to **PICK A GAME** (from a crossword or sudoku, press it twice), then
 **↺ CHANGE PLAYER**. Everything answered so
 far is written to the server before you leave, and it's still there when that player
 comes back — including which squares were solved, which were solved on the first try,
@@ -131,7 +142,7 @@ No build step and no dependencies: it's plain ES modules served straight off dis
 Edit anything under `public/` and reload the page.
 
 - `server.js` — static files plus a four-route JSON API
-- `public/js/levels.js` — grid sizes and the unlock rules. `OPS` already contains
+- `public/js/levels.js` — the grid size and which numbers go on the labels. `OPS` already contains
   multiplication; switching `session.op` to `'mul'` turns the whole game into a times table
 - `public/js/crossword/puzzles.js` — the crosswords, written as finished grids plus a
   word→emoji table. Entries are *derived* from the grid, so a puzzle whose words do

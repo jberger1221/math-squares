@@ -111,6 +111,10 @@ export const sfx = {
   // The whole grid clearing itself.
   wipe: () => { tone(420, 0.7, { type: 'sawtooth', gain: 0.3, slideTo: 70 });
                 noise(0.6, { gain: 0.16, freq: 900 }); },
+  // Evolving: each flicker a step higher, then a bright arpeggio for the new form.
+  evolveTick: (i) => tone(330 * 2 ** (Math.min(i, 24) / 12), 0.07, { type: 'triangle', gain: 0.28 }),
+  evolved: () => melody([[N.C5, 0.1], [N.E5, 0.1], [N.G5, 0.1], [N.C6, 0.1], [N.E6, 0.1], [N.G6, 0.45]],
+                        { type: 'triangle', step: 0.08, gain: 0.4 }),
   unlockChime: () => melody([[N.G5, 0.1], [N.B5, 0.1], [N.E6, 0.3]], { type: 'triangle', step: 0.1 }),
 
   fanfare: () => {

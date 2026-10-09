@@ -5,10 +5,11 @@ import { sfx } from '../audio.js';
 import { createGrid } from '../grid.js';
 import { openPopout } from '../popout.js';
 import { createDancer } from '../dancer.js';
+import { playEvolution } from '../evolve.js';
 import { runFireworks } from '../fireworks.js';
-import { OPS, cellKey, operands, answerFor, maxAnswer, SIZES, isUnlocked } from '../levels.js';
+import { OPS, cellKey, operands, answerFor, maxAnswer } from '../levels.js';
 import {
-  getProfile, session, levelRecord, recordCorrect, recordMiss, triesOn,
+  getProfile, session, evolutionStage, levelRecord, recordCorrect, recordMiss, triesOn,
   completeLevel, resetLevelRun, saveNow, setMuted,
 } from '../state.js';
 
@@ -48,7 +49,7 @@ export function mount(el, { size, op }) {
 
   const back = document.createElement('button');
   back.textContent = '←';
-  back.setAttribute('aria-label', 'back to levels');
+  back.setAttribute('aria-label', 'back to games');
   back.addEventListener('click', leave);
 
   const who = document.createElement('span');
@@ -95,7 +96,7 @@ export function mount(el, { size, op }) {
 
   const canvas = document.createElement('canvas');
   canvas.className = 'dancer';
-  dancer = createDancer(canvas);
+  dancer = createDancer(canvas, { stage: evolutionStage() });
 
   stage.append(grid.el, canvas);
   el.append(hud, stage);
@@ -231,12 +232,13 @@ export function mount(el, { size, op }) {
     document.body.append(fx);
     stopFireworks = runFireworks(fx, { shells: 9, spread: 5200 });
 
-    const nextSize = SIZES[SIZES.indexOf(size) + 1];
-    const justUnlocked = nextSize && isUnlocked(profile, op, nextSize);
-    if (justUnlocked) setTimeout(() => sfx.unlockChime(), 1400);
-
     const banner = document.createElement('div');
     banner.className = 'clear-banner';
+
+    // The big version of him takes the stage dancer's place while he evolves.
+    const evo = playEvolution(result.evolution);
+    canvas.style.visibility = 'hidden';
+    dancer.setLook({ stage: result.evolution.to });
 
     const big = document.createElement('div');
     big.className = `big ${result.perfect ? 'neon-yellow' : 'neon-green'}`;
@@ -249,32 +251,20 @@ export function mount(el, { size, op }) {
     const row = document.createElement('div');
     row.className = 'row';
 
-    if (justUnlocked) {
-      const nextBtn = document.createElement('button');
-      nextBtn.className = 'neon-green';
-      nextBtn.style.borderColor = 'var(--green)';
-      nextBtn.textContent = `NEXT ▶ ${nextSize}×${nextSize}`;
-      nextBtn.addEventListener('click', () => {
-        cleanupCelebration(banner);
-        go('game', { size: nextSize, op });
-      });
-      row.append(nextBtn);
-    }
-
     const menuBtn = document.createElement('button');
     menuBtn.textContent = '☰ MENU';
     menuBtn.addEventListener('click', () => {
       cleanupCelebration(banner);
-      go('levelselect');
+      go('gamepick');
     });
     row.append(menuBtn);
 
-    banner.append(big, sub, row);
+    banner.append(evo.el, big, sub, row);
     document.body.append(banner);
     // Give the fireworks a few seconds of stage time before the buttons appear.
     row.style.opacity = '0';
     row.style.transition = 'opacity 600ms';
-    setTimeout(() => { row.style.opacity = '1'; }, 2600);
+    setTimeout(() => { row.style.opacity = '1'; }, Math.max(2600, evo.ms + 600));
   }
 
   function cleanupCelebration(banner) {
@@ -286,7 +276,7 @@ export function mount(el, { size, op }) {
 
   async function leave() {
     await saveNow();
-    go('levelselect');
+    go('gamepick');
   }
 
   keyHandler = (e) => {

@@ -3,6 +3,7 @@
 
 import * as api from './api.js';
 import { levelId, blankLevelRecord, cellKey, DEFAULT_OP } from './levels.js';
+import { MAX_STAGE } from './dancer.js';
 
 export const session = {
   streak: 0,          // consecutive correct answers with no mistake
@@ -19,6 +20,9 @@ export const getProfile = () => profile;
 export async function loadProfile(name) {
   profile = await api.getPlayer(name);
   profile.levels ||= {};
+  // Puzzles finished, which is what evolves the dancer. Profiles from before it was
+  // counted start from how many puzzles they had already finished.
+  profile.clears ??= Object.values(profile.levels).filter((rec) => rec.completed).length;
   // A streak belongs to the player who earned it. Without this, handing the iPad to
   // the next kid hands them the streak too -- and lets them take the record for it.
   session.streak = 0;
@@ -37,6 +41,15 @@ export function puzzleRecord(id) {
   profile.levels[id] ||= blankLevelRecord();
   profile.levels[id].tries ||= {};   // profiles saved before tries were tracked
   return profile.levels[id];
+}
+
+/**
+ * Open a locked puzzle with the grown-up's code. It is a flag on the puzzle, not a fake
+ * "finished" on the ones before it, so no stars, score or evolution are handed out.
+ */
+export async function skipTo(id) {
+  puzzleRecord(id).unlocked = true;
+  await saveNow();
 }
 
 /** Get (creating if needed) the saved record for one level. */
@@ -107,6 +120,16 @@ export function recordMiss(op, size, r, c, usedTries) {
   save();
 }
 
+/** Which form the dancer is in: one stage per puzzle finished, up to the last one. */
+export const evolutionStage = () => Math.min(profile?.clears || 0, MAX_STAGE);
+
+/** Count one more finished puzzle, and say which stage he goes from and to. */
+function countClear() {
+  const from = evolutionStage();
+  profile.clears = (profile.clears || 0) + 1;
+  return { from, to: evolutionStage() };
+}
+
 /** Called when every cell is filled. Returns the bonus breakdown for the banner. */
 export function completeLevel(op, size, elapsedMs, runScore) {
   const rec = levelRecord(op, size);
@@ -126,8 +149,9 @@ export function completeLevel(op, size, elapsedMs, runScore) {
   if (total > rec.bestScore) rec.bestScore = total;
   if (elapsedMs > 0 && (rec.bestTimeMs === 0 || elapsedMs < rec.bestTimeMs)) rec.bestTimeMs = elapsedMs;
 
+  const evolution = countClear();
   save();
-  return { completionBonus, perfectBonus, perfect, total };
+  return { completionBonus, perfectBonus, perfect, total, evolution };
 }
 
 /** Wipe a level's saved progress so it can be replayed from scratch. */
@@ -199,8 +223,9 @@ export function completePuzzle(id, cells, elapsedMs, runScore) {
   if (total > rec.bestScore) rec.bestScore = total;
   if (elapsedMs > 0 && (rec.bestTimeMs === 0 || elapsedMs < rec.bestTimeMs)) rec.bestTimeMs = elapsedMs;
 
+  const evolution = countClear();
   save();
-  return { completionBonus, perfectBonus, perfect, total };
+  return { completionBonus, perfectBonus, perfect, total, evolution };
 }
 
 /** Wipe a puzzle's saved progress so it can be played again from scratch. */

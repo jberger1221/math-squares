@@ -4,6 +4,7 @@
 import { go } from '../router.js';
 import { sfx } from '../audio.js';
 import { getProfile, session } from '../state.js';
+import { SIZE } from '../levels.js';
 
 /** A number grid in miniature, with its sign over the top: + or −. */
 const mathArt = (sign, accent) => () => {
@@ -44,8 +45,8 @@ function sudokuArt() {
 }
 
 const GAMES = [
-  { screen: 'levelselect',     label: 'ADD',       art: mathArt('+', 'neon-pink'),   accent: 'neon',        op: 'add' },
-  { screen: 'levelselect',     label: 'SUBTRACT',  art: mathArt('−', 'neon-yellow'), accent: 'neon-yellow', op: 'sub' },
+  { screen: 'game',            label: 'ADD',       art: mathArt('+', 'neon-pink'),   accent: 'neon',        op: 'add' },
+  { screen: 'game',            label: 'SUBTRACT',  art: mathArt('−', 'neon-yellow'), accent: 'neon-yellow', op: 'sub' },
   { screen: 'crosswordselect', label: 'CROSSWORD', art: crossArt,  accent: 'neon-pink' },
   { screen: 'sudokuselect',    label: 'SUDOKU',    art: sudokuArt, accent: 'neon-green' },
 ];
@@ -81,8 +82,9 @@ export function mount(el) {
     tile.append(game.art(), label);
     tile.addEventListener('click', () => {
       sfx.navigate();
-      if (game.op) session.op = game.op;   // the grid screens read which table to play
-      go(game.screen);
+      // Each math game is a single grid, so there is no picker: straight in.
+      if (game.op) { session.op = game.op; go('game', { size: SIZE, op: game.op }); }
+      else go(game.screen);
     });
     row.append(tile);
     first ||= tile;

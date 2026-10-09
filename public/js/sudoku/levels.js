@@ -21,6 +21,7 @@ export const sudokuRecordId = (id) => `sudoku-${id}`;
 
 export function sudokuUnlocked(profile, index) {
   if (index === 0) return true;
+  if (profile?.levels?.[sudokuRecordId(SUDOKU_LEVELS[index].id)]?.unlocked) return true;   // the code
   const prev = SUDOKU_LEVELS[index - 1];
   return Boolean(profile?.levels?.[sudokuRecordId(prev.id)]?.completed);
 }
